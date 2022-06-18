@@ -70,6 +70,12 @@ if [ "${BASE_ADD_USER}" == "yes" ]; then
             usermod -a -G sudo "${BASE_USER}"
         fi
     fi
+    # According to https://github.com/RPi-Distro/userconf-pi/blob/748ebaae779fb96e84ff4ea999fc7756897d23ce/cancel-rename#L31
+    # Simply try to remove that file to set 'B1'
+    if [ "${BASE_DISABLE_AUTOLOGIN}" == "yes" ] &&
+    [ -f "/var/lib/userconf-pi/autologin" ]; then
+      rm -f /var/lib/userconf-pi/autologin
+    fi
 fi
 
 if [ -n "$BASE_APT_PROXY" ]

@@ -298,31 +298,31 @@ FDISK
   trap 'losetup -d $LODEV' EXIT
 
   ## React to $BASE_ROOT_PARTITION_FS, default is blank
-  if [[ -z "${BASE_ROOT_PARTITION_FS}" ]]; then
-    ## -f = force -y = yes to all
-    e2fsck -fy $LODEV
-    resize2fs -p $LODEV
-    losetup -d $LODEV
-  else
-    case "${BASE_ROOT_PARTITION_FS}" in
-      btrfs|BTRFS)
-        echo "Using BTRFS as root filesystem ..."
-        mkdir -p src/workspace/tmp_data
-        mount -o loop $LODEV src/workspace/tmp_data
-        btrfs check --repair --force $LODEV
-        btrfs filesystem resize max src/workspace/tmp_data
-        btrfs filesystem sync src/workspace/tmp_data
-        umount src/workspace/tmp_data
-        sudo rm -rf src/workspace/tmp_data
-        losetup -d $LODEV
-      ;;
-      *)
-        echo "Unknown filesystem: ${BASE_ROOT_PARTITION_FS}! Exiting!"
-        echo "Please check your base configuration!"
-        exit 1
-      ;;
-    esac
-  fi
+
+  case "${BASE_ROOT_PARTITION_FS,,}" in
+    auto)
+      echo "Using standard root filesystem ..."
+      e2fsck -fy $LODEV
+      resize2fs -p $LODEV
+      losetup -d $LODEV
+    ;;
+    btrfs)
+      echo "Using BTRFS as root filesystem ..."
+      mkdir -p src/workspace/tmp_data
+      mount -o loop $LODEV src/workspace/tmp_data
+      btrfs check --repair --force $LODEV
+      btrfs filesystem resize max src/workspace/tmp_data
+      btrfs filesystem sync src/workspace/tmp_data
+      umount src/workspace/tmp_data
+      sudo rm -rf src/workspace/tmp_data
+      losetup -d $LODEV
+    ;;
+    *)
+      echo "Unknown filesystem: ${BASE_ROOT_PARTITION_FS,,}! Exiting!"
+      echo "Please check your base configuration!"
+      exit 1
+    ;;
+  esac
 
   trap - EXIT
   echo "Resized parition $partition of $image to +$size MB"
@@ -345,15 +345,16 @@ function shrink_ext() {
   LODEV=$(losetup -f --show -o $offset $image)
   trap 'losetup -d $LODEV' EXIT
 
-  e2fsck -fy $LODEV
-  
   e2ftarget_bytes=$(($size * 1024 * 1024))
   e2ftarget_blocks=$(($e2ftarget_bytes / 512 + 1))
 
-  echo "Resizing file system to $e2ftarget_blocks blocks..."
-  resize2fs $LODEV ${e2ftarget_blocks}s
-  losetup -d $LODEV
-  trap - EXIT
+  if [[ "${BASE_ROOT_PARTITION_FS,,}" = "auto" ]]; then
+    e2fsck -fy $LODEV
+    echo "Resizing file system to $e2ftarget_blocks blocks..."
+    resize2fs $LODEV ${e2ftarget_blocks}s
+    losetup -d $LODEV
+    trap - EXIT
+  fi
 
   new_end=$(($start + $e2ftarget_blocks))
 
@@ -381,10 +382,30 @@ FDISK
   test_for_image $image
   LODEV=$(losetup -f --show -o $offset $image)
   trap 'losetup -d $LODEV' EXIT
-
-  e2fsck -fy $LODEV
-  resize2fs -p $LODEV
-  losetup -d $LODEV
+  
+  case "${BASE_ROOT_PARTITION_FS,,}" in
+    auto)
+      e2fsck -fy $LODEV
+      resize2fs -p $LODEV
+      losetup -d $LODEV
+    ;;
+    btrfs)
+      echo "Using BTRFS as root filesystem ..."
+      mkdir -p src/workspace/tmp_data
+      mount -o loop $LODEV src/workspace/tmp_data
+      btrfs check --repair --force $LODEV
+      btrfs filesystem resize max src/workspace/tmp_data
+      btrfs filesystem sync src/workspace/tmp_data
+      umount src/workspace/tmp_data
+      sudo rm -rf src/workspace/tmp_data
+      losetup -d $LODEV
+    ;;
+    *)
+      echo "Unknown filesystem: ${BASE_ROOT_PARTITION_FS,,}! Exiting!"
+      echo "Please check your base configuration!"
+      exit 1
+    ;;
+  esac
   trap - EXIT
 }
 

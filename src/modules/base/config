@@ -59,7 +59,7 @@ fi
 [ -n "$BASE_ROOT_PARTITION" ] || BASE_ROOT_PARTITION=2
 
 # The root partiton of the image filesystem type
-[ -n "$BASE_ROOT_PARTITION_FS" ] || BASE_ROOT_PARTITION_FS=""
+[ -n "$BASE_ROOT_PARTITION_FS" ] || BASE_ROOT_PARTITION_FS="auto"
 
 # if set will enlarge root parition prior to build by provided size in MB
 [ -n "$BASE_IMAGE_ENLARGEROOT" ] || BASE_IMAGE_ENLARGEROOT=200

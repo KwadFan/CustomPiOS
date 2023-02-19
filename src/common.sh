@@ -304,7 +304,16 @@ FDISK
     resize2fs -p $LODEV
     losetup -d $LODEV
   else
-    exit 1
+    case "${BASE_ROOT_PARTITION_FS}" in
+      btrfs|BTRFS)
+        echo "Using BTRFS as root filesystem ..."
+      ;;
+      *)
+        echo "Unknown filesystem: ${BASE_ROOT_PARTITION_FS}! Exiting!"
+        echo "Please check your base configuration!"
+        exit 1
+      ;;
+    esac
   fi
 
   trap - EXIT

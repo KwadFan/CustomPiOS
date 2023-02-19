@@ -308,7 +308,8 @@ FDISK
       btrfs|BTRFS)
         echo "Using BTRFS as root filesystem ..."
         btrfs check --repair --force $LODEV
-        btrfs fs resize max $LODEV
+        btrfs filesystem resize max $LODEV
+        btrfs filesystem sync
         losetup -d $LODEV
       ;;
       *)

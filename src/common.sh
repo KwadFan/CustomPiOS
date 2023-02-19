@@ -307,9 +307,13 @@ FDISK
     case "${BASE_ROOT_PARTITION_FS}" in
       btrfs|BTRFS)
         echo "Using BTRFS as root filesystem ..."
+        mkdir -p src/workspace/tmp_data
+        mount -o loop $image src/workspace/tmp_data
         btrfs check --repair --force $LODEV
-        btrfs filesystem resize max $LODEV
+        btrfs filesystem resize max src/workspace/tmp_data
         btrfs filesystem sync
+        umount src/workspace/tmp_data
+        sudo rm -rf src/workspace/tmp_data
         losetup -d $LODEV
       ;;
       *)

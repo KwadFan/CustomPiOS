@@ -426,7 +426,10 @@ function minimize_ext() {
   LODEV=$(losetup -f --show -o $offset $image)
   trap 'losetup -d $LODEV' EXIT
 
-  e2fsck -fy $LODEV
+  if [[ "${BASE_ROOT_PARTITION_FS,,}" = "auto" ]]; then
+    e2fsck -fy $LODEV
+  fi
+
   e2fblocksize=$(tune2fs -l $LODEV | grep -i "block size" | awk -F: '{print $2-0}')
   e2fminsize=$(resize2fs -P $LODEV 2>/dev/null | grep -i "minimum size" | awk -F: '{print $2-0}')
 

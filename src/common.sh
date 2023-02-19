@@ -311,7 +311,7 @@ FDISK
         mount -o loop $LODEV src/workspace/tmp_data
         btrfs check --repair --force $LODEV
         btrfs filesystem resize max src/workspace/tmp_data
-        btrfs filesystem sync
+        btrfs filesystem sync src/workspace/tmp_data
         umount src/workspace/tmp_data
         sudo rm -rf src/workspace/tmp_data
         losetup -d $LODEV

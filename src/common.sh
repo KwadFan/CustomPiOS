@@ -308,8 +308,8 @@ FDISK
       btrfs|BTRFS)
         echo "Using BTRFS as root filesystem ..."
         mkdir -p src/workspace/tmp_data
-        mount -o loop $image src/workspace/tmp_data
-        btrfs check --repair --force $LODEV
+        mount -o loop $LODEV src/workspace/tmp_data
+        btrfs check --repair --force src/workspace/tmp_data
         btrfs filesystem resize max src/workspace/tmp_data
         btrfs filesystem sync
         umount src/workspace/tmp_data

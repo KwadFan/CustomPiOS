@@ -307,6 +307,7 @@ FDISK
     case "${BASE_ROOT_PARTITION_FS}" in
       btrfs|BTRFS)
         echo "Using BTRFS as root filesystem ..."
+        exit 1
       ;;
       *)
         echo "Unknown filesystem: ${BASE_ROOT_PARTITION_FS}! Exiting!"

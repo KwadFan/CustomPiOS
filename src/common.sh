@@ -297,9 +297,15 @@ FDISK
   LODEV=$(losetup -f --show -o $offset $image)
   trap 'losetup -d $LODEV' EXIT
 
-  e2fsck -fy $LODEV
-  resize2fs -p $LODEV
-  losetup -d $LODEV
+  ## React to $BASE_ROOT_PARTITION_FS, default is blank
+  if [[ -z "${BASE_ROOT_PARTITION_FS}" ]]; then
+    ## -f = force -y = yes to all
+    e2fsck -fy $LODEV
+    resize2fs -p $LODEV
+    losetup -d $LODEV
+  else
+    exit 1
+  fi
 
   trap - EXIT
   echo "Resized parition $partition of $image to +$size MB"

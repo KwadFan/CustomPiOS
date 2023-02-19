@@ -307,7 +307,9 @@ FDISK
     case "${BASE_ROOT_PARTITION_FS}" in
       btrfs|BTRFS)
         echo "Using BTRFS as root filesystem ..."
-        exit 1
+        btrfs check --repair --force $LODEV
+        btrfs fs resize max $LODEV
+        losetup -d $LODEV
       ;;
       *)
         echo "Unknown filesystem: ${BASE_ROOT_PARTITION_FS}! Exiting!"
